@@ -1,0 +1,39 @@
+@import "bootstrap";
+
+html, body
+    height: 100%;
+body > .layout
+    padding-top: 60px;
+.wrapper
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -60px; // the bottom margin is the negative value of the footer's height
+
+#footer, .push
+    height: 60px; // .push must be the same height as .footer
+
+#footer
+    height: 60px;
+    width: 100%;
+    background-color: #222;
+    border-color: #090909;
+    color: #fff;
+
+#footer.container .text-muted
+    margin: 20px 0;
+
+// fiche styling
+.fiche
+    margin: 1em;
+
+    .fiche-block
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 1em;
+        background-color: #f5f5f5;
+        margin-bottom: 2em;
+
+        .title
+            font-size: 2em;
+            font-style: bold;
