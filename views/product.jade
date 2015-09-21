@@ -1,0 +1,55 @@
+extends basic
+
+block layout
+    .fiche
+        if (style !== 'pdf')
+            a.pull-right(href=url+'.pdf') pdf
+            h1 Fiche voor #{product._tobus.id}
+
+        .fiche-block
+            h1.title= product.metadata.name
+            if (product.metadata.deleted || product.metadata.aborted)
+                | WAARSCHUWING -- VERWIJDERD of STOPGEZET PRODUCT
+
+        .fiche-block
+            h2 vergunningsinfo
+
+            span.mark type logies:
+            = product.license_info.license_type.__value
+            br
+            span.mark STATUS:
+            = product.license_info.license_status
+            br
+            span.mark classificatie:
+            = product.license_info.classification.__value
+            br
+            span.mark aantal:
+            = product.license_info.total_places
+            br
+
+
+        .fiche-block
+            h2 contactgegevens
+
+            span.mark tel:
+            = product.contact_info.telephone
+            br
+            span.mark fax:
+            = product.contact_info.fax
+            br
+            span.mark gsm:
+            = product.contact_info.mobile
+            br
+            span.mark web:
+            = product.contact_info.website
+            br
+            span.mark email:
+            = product.contact_info.email_address
+            br
+            span.mark adres:
+            | #{product.location_info.address.street} #{product.location_info.address.number} #{product.location_info.address.box}, #{product.location_info.address.zip} #{product.location_info.address.municipality}
+            br
+
+
+        pre
+            = JSON.stringify(product, null, "  ")

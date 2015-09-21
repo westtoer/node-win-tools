@@ -1,0 +1,6 @@
+-- start
+PORT=3000 DEBUG=win-tools:* nodemon bin/www 
+
+
+-- stop
+taskkill /IM node.exe -F

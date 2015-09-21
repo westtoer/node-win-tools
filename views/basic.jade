@@ -1,0 +1,13 @@
+doctype html
+html
+  head
+    title= title
+    if (style === 'pdf')
+        base(href="http://localhost:3000")
+    link(rel='stylesheet', href='/stylesheets/style.css')
+  body
+
+    block layout
+
+    script(src="/javascripts/jquery-1.11.3.min.js")
+    script(src="/javascripts/bootstrap.min.js")

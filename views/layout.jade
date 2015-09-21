@@ -1,0 +1,15 @@
+extends basic
+
+block layout
+    .layout
+        header
+            include includes/header.jade
+
+        .wrapper
+            article
+                div.container
+                    block content
+            .push
+
+        footer
+            include includes/footer.jade

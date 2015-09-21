@@ -1,0 +1,85 @@
+extends layout
+
+include mixins/search-form
+include mixins/json-recurse
+
+block content
+    +miniform(form, params).col-lg-12.col-md-12.col-sm-12.col-xs-12
+
+    div.col-lg-12.col-md-12.col-sm-12.col-xs-12
+        if (error)
+            .alert.alert-danger
+                strong error:
+                = error
+        else
+            if (meta.total === 0)
+                .alert.alert-warning
+                    strong Geen
+                    | resultaten gevonden.
+            else
+                if (meta.pages > 1)
+                    nav.pull-right
+                        ul.pagination
+                            if (meta.page > 1)
+                                li
+                                    a(href=router.pageURI(1), aria-label="1") 1
+                                if (meta.page > 2)
+                                    li
+                                        a(href=router.pageURI(meta.page - 1), aria-label="Previous")
+                                            span(aria-hidden="true") &laquo;
+                            li.active
+                                a(href=router.pageURI(), aria-label="1")= meta.page
+                                    span.sr-only(aria-hidden="true") (current)
+                            if (meta.pages - meta.page > 0)
+                                if (meta.pages - meta.page > 1)
+                                    li
+                                        a(href=router.pageURI(meta.page + 1), aria-label="Next")
+                                            span(aria-hidden="true") &raquo;
+                                li
+                                    a(href=router.pageURI(meta.pages), aria-label="1")= meta.pages
+
+                .alert.alert-success
+                    strong.mark= meta.total
+                    |  resultaten verdeeld over
+                    strong.mark= meta.pages
+                    |  pagina's, waarvan
+                    strong.mark= result.length
+                    |  resultaten op pagina
+                    strong.mark
+                        | #
+                        = meta.page
+
+
+
+                .panel-group#result-group(role="tablist", aria-multiselectable="false")
+
+                    each it, index in result
+                        .panel.panel-default
+                            .panel-heading#headingOne(role="tab")
+                                h4.panel-title
+                                    a(role="button", data-toggle="collapse", data-parent="#result-group", href="#cp-"+index, aria-expanded="false", aria-controls="cp-"+index)
+                                        | [#{index + 1}] #{it.metadata.name} (#{it.metadata.id})
+                                        span.small.text-muted
+                                            span.glyphicon.glyphicon-road
+                                            |   #{it.location_info.address.street} #{it.location_info.address.number}, #{it.location_info.address.municipality}
+                                        a.pull-right(href="http://win.westtoer.be/node/" + it._tobus.id + "/edit", target="_blank") | edit
+                                            span.glyphicon.glyphicon-pencil &nbsp;
+                                        a.pull-right(href="http://win.westtoer.be/node/" + it._tobus.id, target="_blank") | win
+                                            span.glyphicon.glyphicon-share &nbsp;
+                                        a.pull-right(href="/search/detail/" + it._tobus.id + ".pdf") | pdf
+                                            span.glyphicon.glyphicon-print &nbsp;
+
+                            .panel-collapse.collapse(id="cp-"+index, role="tabpanel", aria-labelledby="headingOne")
+                                .panel-body
+                                    pre
+                                        = JSON.stringify(it, null, '  ')
+                                        // +showJson(result)
+
+            .alert.alert-info
+                em= info
+                strong
+                    a(href=query.replace('=***','='+win.token) ,target="_blank") backend
+                    | -query:
+                pre= decodeURIComponent(query).replace('?','\n  ?  ').replace(/&/g, '\n    &')
+                strong token:
+                = win.token
