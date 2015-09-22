@@ -1,16 +1,15 @@
 extends layout
 
 include mixins/search-form
-include mixins/json-recurse
 
 block content
-    +miniform(form, params).col-lg-12.col-md-12.col-sm-12.col-xs-12
+    .col-lg-12.col-md-12.col-sm-12.col-xs-12
+        +miniform(form, params).col-lg-12.col-md-12.col-sm-12.col-xs-12
 
-    div.col-lg-12.col-md-12.col-sm-12.col-xs-12
+    .col-lg-12.col-md-12.col-sm-12.col-xs-12
         if (error)
-            .alert.alert-danger
-                strong error:
-                = error
+            +errorblock(error)
+
         else
             if (meta.total === 0)
                 .alert.alert-warning
@@ -58,16 +57,21 @@ block content
                             .panel-heading#headingOne(role="tab")
                                 h4.panel-title
                                     a(role="button", data-toggle="collapse", data-parent="#result-group", href="#cp-"+index, aria-expanded="false", aria-controls="cp-"+index)
-                                        | [#{index + 1}] #{it.metadata.name} (#{it.metadata.id})
-                                        span.small.text-muted
-                                            span.glyphicon.glyphicon-road
-                                            |   #{it.location_info.address.street} #{it.location_info.address.number}, #{it.location_info.address.municipality}
-                                        a.pull-right(href="http://win.westtoer.be/node/" + it._tobus.id + "/edit", target="_blank") | edit
-                                            span.glyphicon.glyphicon-pencil &nbsp;
-                                        a.pull-right(href="http://win.westtoer.be/node/" + it._tobus.id, target="_blank") | win
-                                            span.glyphicon.glyphicon-share &nbsp;
-                                        a.pull-right(href="/search/detail/" + it._tobus.id + ".pdf") | pdf
-                                            span.glyphicon.glyphicon-print &nbsp;
+                                        div.col-lg-4.col-md-4.col-sm-4.col-xs-4
+                                            | [#{index + 1}] #{it.metadata.name} (#{it.metadata.id})
+                                        div.col-lg-4.col-md-4.col-sm-4.col-xs-4
+                                            span.small.text-muted
+                                                |
+                                                span.glyphicon.glyphicon-road
+                                                |   #{it.location_info.address.street} #{it.location_info.address.number}, #{it.location_info.address.municipality}
+                                        div.col-lg-4.col-md-4.col-sm-4.col-xs-4
+                                            a.pull-right(href="http://win.westtoer.be/node/" + it._tobus.id + "/edit", target="_blank")
+                                                span.glyphicon.glyphicon-pencil &nbsp;
+                                            a.pull-right(href="http://win.westtoer.be/node/" + it._tobus.id, target="_blank")
+                                                span.glyphicon.glyphicon-share &nbsp;
+                                            a.pull-right(href="/search/detail/" + it._tobus.id + ".pdf")
+                                                span.glyphicon.glyphicon-print &nbsp;
+                                        div.clearfix
 
                             .panel-collapse.collapse(id="cp-"+index, role="tabpanel", aria-labelledby="headingOne")
                                 .panel-body

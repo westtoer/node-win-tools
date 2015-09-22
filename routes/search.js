@@ -33,6 +33,7 @@ router.get('/', function (req, res, next) {
     res.render('search', {
         "title": 'win-tools::search',
         "menu" : 'search',
+        "win"  : win,
         "forms": [
             ANY_FORM,
             ID_FORM//,
@@ -42,11 +43,18 @@ router.get('/', function (req, res, next) {
     });
 });
 
+
+router.get('/restart', function (req, res, next) {
+    win.stop();
+    win.start(function (e) {
+        res.redirect('/search');
+    });
+});
+
 function searchResult(res, api, qry, form, params) {
     qry.size(params.size).page(params.page);
 
     api.fetch(qry, function (e, resp, meta) {
-        // todo proper error handling
         res.render('search-result', {
             "title"  : 'win-tools::search',
             "menu"   : 'search',

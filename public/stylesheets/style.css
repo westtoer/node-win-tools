@@ -6059,7 +6059,7 @@ button.close {
   .hidden-print {
     display: none !important; } }
 
-html, body {
+html, body, body > .layout {
   height: 100%; }
 
 body > .layout {

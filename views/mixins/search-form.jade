@@ -1,12 +1,24 @@
 mixin miniform(fd, params)
     - style = attributes.class || "col-lg-3 col-md-4 col-sm-6 col-xs-12"
     - params = params || {}
-    form(class!=style, action=fd.action, method='get').thumbnail
-        input(type="hidden", name="_page", value=params.page)
-        input(type="hidden", name="_size", value=params.size)
-        .form-group
-            label(for=name) #{fd.label}
-            input.form-control.input-lg(type="text", name=fd.name, id=fd.name, placeholder=fd.placeholder, value=params.value)
-        button.btn.btn-primary.btn-lg.pull-right
-            span.glyphicon.glyphicon-search(aria-hidden="true")
-            |  Zoek
+    div.thumbnail(class!=style)
+        form(action=fd.action, method='get')
+            input(type="hidden", name="_page", value=params.page)
+            input(type="hidden", name="_size", value=params.size)
+            .form-group
+                label(for=name) #{fd.label}
+                input.form-control.input-lg(type="text", name=fd.name, id=fd.name, placeholder=fd.placeholder, value=params.value)
+            button.btn.btn-primary.pull-right
+                span.glyphicon.glyphicon-search(aria-hidden="true")
+                |  Zoek
+        .clearfix
+
+mixin errorblock(error)
+    .alert.alert-danger
+        strong error:
+        = error
+        a.pull-right(href="/search/restart")
+            button.btn.btn-danger
+                span.glyphicon.glyphicon-refresh
+                |  restart client
+        .clearfix

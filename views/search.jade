@@ -6,6 +6,10 @@ block content
     h1 Zoek in de win-api volgens...
 
     .row
+        if (! win.token)
+            .col-lg-12.col-md-12.col-sm-12.col-xs-12
+                +errorblock("Error - client has no active api-connection (token missing)")
+
         .col-lg-12.col-md-12.col-sm-12.col-xs-12
             each form in forms
                 +miniform(form)
