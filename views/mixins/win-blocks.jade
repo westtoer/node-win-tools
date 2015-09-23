@@ -1,0 +1,21 @@
+mixin win-header(item, addlink)
+    div.col-lg-4.col-md-4.col-sm-4.col-xs-4
+        if (addlink)
+            a.pull-right(href="/search/id?id=" + item.id)
+                | #{item.lbl}
+        else
+            | #{item.lbl}
+
+    div.col-lg-4.col-md-4.col-sm-4.col-xs-4
+        if (item.adr)
+            span.small.text-muted
+                span.glyphicon.glyphicon-road
+                |   #{item.adr}
+    div.col-lg-4.col-md-4.col-sm-4.col-xs-4
+        a.pull-right(href="http://win.westtoer.be/node/" + item.id + "/edit", target="_blank")
+            span.glyphicon.glyphicon-pencil &nbsp;
+        a.pull-right(href="http://win.westtoer.be/node/" + item.id, target="_blank")
+            span.glyphicon.glyphicon-share &nbsp;
+        a.pull-right(href="/search/detail/" + item.id + ".pdf")
+            span.glyphicon.glyphicon-print &nbsp;
+    div.clearfix

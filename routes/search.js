@@ -96,7 +96,11 @@ function formParams(req, valueName) {
 }
 
 router.get('/id', function (req, res, next) {
-    res.redirect('detail/' + req.query.id);
+    //res.redirect('detail/' + req.query.id);
+    var params = formParams(req, "id"),
+        qry = winquery().id(params.id);
+
+    searchResult(res, win, qry, ANY_FORM, params);
 });
 
 router.get('/any', function (req, res, next) {

@@ -11,13 +11,13 @@ nav.navbar.navbar-fixed-top.navbar-inverse
             ul.nav.navbar-nav
                 li(class= (menu === 'search') ? 'active' : '')
                     a(href="/search") Zoek
-                li.dropdown(class= (menu === 'demo') ? 'active' : '')
-                    a.dropdown-toggle(href="#", data-toggle="dropdown", role="button", aria-haspopup="true", aria-expanded="false") todo...
+                li.dropdown(class= (menu === 'shortcuts') ? 'active' : '')
+                    a.dropdown-toggle(href="#", data-toggle="dropdown", role="button", aria-haspopup="true", aria-expanded="false") Shortcuts
                         span.caret
 
                     ul.dropdown-menu
                         li
-                            a(href="/todo") todo 1
+                            a(href="/samples") samples
                         li
                             a(href="/todo") todo 2
                         li
@@ -30,4 +30,4 @@ nav.navbar.navbar-fixed-top.navbar-inverse
                             a(href="/todo") todo 5
             ul.nav.navbar-nav.navbar-right
                 li(class= (menu === 'about') ? 'active' : '')
-                    a(href="/todo") About
+                    a(href="/about") About
