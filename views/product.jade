@@ -11,21 +11,22 @@ block layout
             if (product.metadata.deleted || product.metadata.aborted)
                 | WAARSCHUWING -- VERWIJDERD of STOPGEZET PRODUCT
 
-        .fiche-block
-            h2 vergunningsinfo
+        if (product.license_info)
+            .fiche-block
+                h2 vergunningsinfo
 
-            span.mark type logies:
-            = product.license_info.license_type.__value
-            br
-            span.mark STATUS:
-            = product.license_info.license_status
-            br
-            span.mark classificatie:
-            = product.license_info.classification.__value
-            br
-            span.mark aantal:
-            = product.license_info.total_places
-            br
+                span.mark type logies:
+                = product.license_info.license_type.__value
+                br
+                span.mark STATUS:
+                = product.license_info.license_status
+                br
+                span.mark classificatie:
+                = product.license_info.classification.__value
+                br
+                span.mark aantal:
+                = product.license_info.total_places
+                br
 
 
         .fiche-block
