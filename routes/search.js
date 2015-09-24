@@ -15,6 +15,7 @@ var express = require('express'),
     TDB_FORM = {"label": "TDB id",   "name": "id",  "action": "/search/tdb",     "placeholder": "id"         },
     ADR_FORM = {"label": "Adres",    "name": "adr", "action": "/search/address", "placeholder": "straat..."  },
 
+    PRODUCTS = ['accommodation', 'permanent_offering', 'reca', 'temporary_offering', 'mice'],
 
     PDF_OPTS = {
         "format": 'A4',
@@ -77,7 +78,7 @@ function searchResult(res, api, qry, form, params) {
 
 function winquery(type) {
     type = type || 'product';
-    return wapi.query(type).asJSON_HAL();
+    return wapi.query(type).forTypes(PRODUCTS).asJSON_HAL();
 }
 
 function formVal(req, valueName, defVal) {
