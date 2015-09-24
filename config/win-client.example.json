@@ -1,5 +1,6 @@
 {
     "verbose" : false,
     "clientid": "yourid",
-    "secret"  : "yoursecret"
+    "secret"  : "yoursecret",
+    "server"  : "win-api.westtoer.be"
 }
