@@ -1,0 +1,14 @@
+{
+    "acceptance" : {
+        "verbose" : false,
+        "clientid": "yourid",
+        "secret"  : "yoursecret",
+        "server"  : "win-api.westtoer.be"
+    },
+    "production" : {
+        "verbose" : false,
+        "clientid": "yourid",
+        "secret"  : "yoursecret",
+        "server"  : "win-api.westtoer.be"
+    }
+}

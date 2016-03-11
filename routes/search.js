@@ -5,7 +5,8 @@
 var express = require('express'),
     pdf = require('html-pdf'),
     wapi = require('node-winapi'),
-    winconf = require('../config/win-client.json'),
+    winclients = require('../config/winapis.json'),
+    winconf = winclients.acceptance, // TODO find mechanism to load and use multiple clients!
     win = wapi.client(winconf),
     util = require('util'),
     router = express.Router(),

@@ -1,0 +1,8 @@
+{
+    "local" : {
+        "path": "./_link-data/LOCAL/"
+    },
+    "dhub": {
+        "path": "./_link-data/DHUB/"
+    }
+}
