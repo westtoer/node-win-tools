@@ -4,3 +4,8 @@ PORT=3000 DEBUG=win-tools:* nodemon bin/www
 
 -- stop
 taskkill /IM node.exe -F
+
+
+
+-- check imgs
+node imgs.js -i ../node-winapi/tmp/win/2.0/
