@@ -12,7 +12,11 @@ var rwcsv = require('./lib/rwcsv'),
     async = require('async'),
     moment = require('moment'),
     mc = require('./lib/mediacheck'),
-    settings;
+    fc = require('./lib/filecheck'),
+    settings,
+
+    CMD_IMGS = "imgs",
+    CMD_FILES = "files";
 
 settings = argv
     .usage('Checkt de opgelijste beelden in de verschillende xml files in de aangegeven windump-directory')
@@ -31,7 +35,27 @@ settings = argv
     .alias('r', 'recurse')
     .default('r', false)
 
+    .require(1)
+
     .argv;
+
+function assertDirExists(dir) {
+    if (!fs.existsSync(dir)) { fs.mkdirSync(dir); }
+}
+
+function outputDir(s) {
+    var dir = path.join(s.input, "checks");
+    assertDirExists(dir);
+    return dir;
+}
+
+function fileCheck(s) {
+    var outd = outputDir(s);
+    fc.check(s.input, s.recurse, function (err, results) {
+        rwcsv.write(path.join(outd, "file_updates.csv"), results.byfile,
+                 ["file", "mtime", "min_upd", "max_upd"]);
+    });
+}
 
 function writeCSV(outf, dbag, headers) {
     var data = [];
@@ -43,8 +67,7 @@ function writeCSV(outf, dbag, headers) {
 }
 
 function imgCheck(s) {
-    var outd = path.join(s.input, "checks");
-    if (!fs.existsSync(outd)) { fs.mkdirSync(outd); }
+    var outd = outputDir(s);
     mc.check(s.input, s.recurse, function (err, results) {
         writeCSV(path.join(outd, "bad_images.csv"),   results.badimgs,
                  ["winid", "deleted", "published", "imguri", "broken"]);
@@ -57,4 +80,13 @@ function imgCheck(s) {
     });
 }
 
-imgCheck(settings);
+
+if (settings._.indexOf(CMD_IMGS) !== -1) {
+    imgCheck(settings);
+}
+
+if (settings._.indexOf(CMD_FILES) !== -1) {
+    fileCheck(settings);
+}
+
+

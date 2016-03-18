@@ -7,5 +7,6 @@ taskkill /IM node.exe -F
 
 
 
--- check imgs
-node imgs.js -i ../node-winapi/tmp/win/2.0/
+-- check imgs of files
+node checks.js -i ../node-winapi/tmp/win/2.0/ imgs
+node checks.js -i ../node-winapi/tmp/win/2.0/ files
