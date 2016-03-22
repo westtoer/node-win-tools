@@ -1,3 +1,10 @@
+# secret config files
+config/winapis.json
+config/windumps.json
+
+# symlinks to data
+_link-data/
+
 # Logs
 logs
 *.log
@@ -23,15 +30,13 @@ coverage
 build/Release
 
 # Dependency directory
-# https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git-
 node_modules
 
 # Debug log from npm
-npm-debug.log
+npm-debug.log*
 
-# secret config files
-config/winapis.json
-config/windumps.json
+# Optional npm cache directory
+.npm
 
-# symlinks to data
-_link-data/
+# Optional REPL history
+.node_repl_history
