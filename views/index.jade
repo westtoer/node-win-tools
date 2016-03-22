@@ -4,6 +4,34 @@ block content
     .well
         h1= title
         p
-            | Dit is een eenvoudige pagina die wat extra toeters en bellen in de win-sector levert.
-            | Veel plezier.
+            | Een set tools in de rand van win.westtoer.be
+
+    .actions.col-sm-12
+        a(href="/reload")
+            button.btn.btn-primary
+                span.glyphicon.glyphicon-refresh
+                |   Reload
+
+    .options.col-sm-6
+        h3 win-api's voor
+            a(href="/search") zoekopdrachten
+        ul
+            each key in Object.keys(options.winapis)
+                if (key.charAt(0) !== '_')
+                    li
+                        a(href="/search/" + key) #{key}
+                        | #{key === options.winapis._default ? "(default)" : ""}
+
+
+    .options.col-sm-6
+        h3 lokale dumps voor
+            a(href="/analyse") analyses
+        ul
+            each key in Object.keys(options.windumps)
+                if (key.charAt(0) !== '_')
+                    li
+                        a(href="/analyse/" + key) #{key}
+                        | #{key === options.windumps._default ? "(default)" : ""}
+
+
 

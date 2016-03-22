@@ -1,12 +1,31 @@
 /*jslint node: true*/
 "use strict";
 
-var express = require('express');
-var router = express.Router();
+var express = require('express'),
+    router = express.Router(),
+    options = {};
+
+
+/* middleware logging and checking */
+//router.use(function (req, res, next) {
+//    console.log('%s %s %s %j', req.method, req.url, req.path, req.app.locals.options);
+//    next();
+//});
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-    res.render('index', { title: 'win-tools', menu: 'home' });
+    var pageData = {
+        title: 'win-tools',
+        menu: 'home',
+        options: req.app.locals.options
+    };
+    res.render('index', pageData);
+});
+
+/* GET reload page. */
+router.get('/reload', function (req, res, next) {
+    req.app.locals.reloadOptions();
+    res.redirect('/');
 });
 
 /* GET about page. */

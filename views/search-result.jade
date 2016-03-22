@@ -4,12 +4,15 @@ include mixins/search-form
 include mixins/win-blocks
 
 block content
+
+    h2 results at api "#{win._name}"
+
     .col-lg-12.col-md-12.col-sm-12.col-xs-12
-        +miniform(form, params).col-lg-12.col-md-12.col-sm-12.col-xs-12
+        +miniform(form, params, mount, win._name).col-lg-12.col-md-12.col-sm-12.col-xs-12
 
     .col-lg-12.col-md-12.col-sm-12.col-xs-12
         if (error)
-            +errorblock(error)
+            +errorblock(error, mount, win._name)
 
         else
             if (meta.total === 0)
@@ -61,7 +64,7 @@ block content
                                         +win-header({
                                             lbl: "[" + (index + 1) + "] " + it.metadata.name + " (" + it.metadata.id + ")",
                                             adr: it.location_info.address.street + " " + it.location_info.address.number + ", " + it.location_info.address.municipality,
-                                            id: it._tobus.id })
+                                            id: it._tobus.id }, false, mount, win._name)
 
 
                             .panel-collapse.collapse(id="cp-"+index, role="tabpanel", aria-labelledby="headingOne")

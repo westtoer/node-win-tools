@@ -3,13 +3,18 @@ extends layout
 include mixins/search-form
 
 block content
-    h1 Zoek in de win-api volgens...
 
+    h2 Selecteer WIN-API om te gebruiken
     .row
-        if (! win.token)
-            .col-lg-12.col-md-12.col-sm-12.col-xs-12
-                +errorblock("Error - client has no active api-connection (token missing)")
+        each key in Object.keys(winapis)
+            if (key.charAt(0) !== '_')
+                .col-sm-3
+                    a(href="/search/" + key).btn(class=(key === win._name ? 'btn-success' : 'btn-default')) #{key}
+                    if (key === win._name && ! win.token)
+                        +errorblock("Error - (token missing)", mount, win._name)
 
+    h2 Zoek in de win-api volgens...
+    .row
         .col-lg-12.col-md-12.col-sm-12.col-xs-12
             each form in forms
-                +miniform(form)
+                +miniform(form, params, mount, win._name)

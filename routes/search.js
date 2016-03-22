@@ -5,16 +5,13 @@
 var express = require('express'),
     pdf = require('html-pdf'),
     wapi = require('node-winapi'),
-    winclients = require('../config/winapis.json'),
-    winconf = winclients.acceptance, // TODO find mechanism to load and use multiple clients!
-    win = wapi.client(winconf),
     util = require('util'),
     router = express.Router(),
 
-    ANY_FORM = {"label": "Zoekterm", "name": "q",   "action": "/search/any",     "placeholder": "term"       },
-    ID_FORM =  {"label": "WIN2 id",  "name": "id",  "action": "/search/id",      "placeholder": "id"         },
-    TDB_FORM = {"label": "TDB id",   "name": "id",  "action": "/search/tdb",     "placeholder": "id"         },
-    ADR_FORM = {"label": "Adres",    "name": "adr", "action": "/search/address", "placeholder": "straat..."  },
+    ANY_FORM = {"label": "Zoekterm", "name": "q",   "action": "any",     "placeholder": "term"       },
+    ID_FORM =  {"label": "WIN2 id",  "name": "id",  "action": "id",      "placeholder": "id"         },
+    TDB_FORM = {"label": "TDB id",   "name": "id",  "action": "tdb",     "placeholder": "id"         },
+    ADR_FORM = {"label": "Adres",    "name": "adr", "action": "address", "placeholder": "straat..."  },
 
     PRODUCTS = ['accommodation', 'permanent_offering', 'reca', 'temporary_offering', 'mice'],
 
@@ -28,14 +25,42 @@ var express = require('express'),
         }
     };
 
-win.start();
+function getWinapis(req, name) {
+    var apis = req.app.locals.options.winapis;
+    if (name === undefined || !(apis.hasOwnProperty(name))) {
+        return apis;
+    } //else
+    return apis[name];
+}
+
+function getDefaultWinapi(req) {
+    return getWinapis(req)._default;
+}
+
+function getWin(req, name) {
+    var winconf = getWinapis(req, name),
+        win;
+
+    if (winconf._win === undefined) {
+        winconf._win = wapi.client(winconf);
+        winconf._win._name = name;
+    }
+    win = winconf._win;
+    return win;
+}
 
 /* GET search page. */
 router.get('/', function (req, res, next) {
+    res.redirect(req.baseUrl + '/' + getDefaultWinapi(req));
+});
+
+router.get('/:winapi', function (req, res, next) {
     res.render('search', {
         "title": 'win-tools::search',
         "menu" : 'search',
-        "win"  : win,
+        "mount": req.baseUrl,
+        "win"  : res.win,
+        "winapis": req.app.locals.options.winapis,
         "forms": [
             ANY_FORM,
             ID_FORM//,
@@ -46,23 +71,28 @@ router.get('/', function (req, res, next) {
 });
 
 
-router.get('/restart', function (req, res, next) {
+router.get('/:winapi/restart', function (req, res, next) {
+    var win = res.win;
     win.stop();
     win.start(function (e) {
-        res.redirect('/search');
+        res.redirect(req.baseUrl + '/' + res.win._name);
     });
 });
 
-function searchResult(res, api, qry, form, params) {
+function searchResult(res, mount, qry, form, params) {
+    var api = res.win;
     qry.size(params.size).page(params.page);
+
+    console.log("*mount = %s", mount);
 
     api.fetch(qry, function (e, resp, meta) {
         res.render('search-result', {
             "title"  : 'win-tools::search',
             "menu"   : 'search',
+            "mount"  : mount,
+            "win"    : api,
             "form"   : form,
             "params" : params,
-            "win"    : win,
             "result" : resp,
             "meta"   : meta,
             "error"  : e,
@@ -97,24 +127,29 @@ function formParams(req, valueName) {
     return { value: req.query[valueName], size: size, page: page};
 }
 
-router.get('/id', function (req, res, next) {
+router.get('/:winapi/id', function (req, res, next) {
     //res.redirect('detail/' + req.query.id);
     var params = formParams(req, "id"),
         qry = winquery().id(params.value);
 
-    searchResult(res, win, qry, ID_FORM, params);
+    searchResult(res, req.baseUrl, qry, ID_FORM, params);
 });
 
-router.get('/any', function (req, res, next) {
+router.get('/:winapi/any', function (req, res, next) {
     var params = formParams(req, "q"),
         qry = winquery().match(params.value);
 
-    searchResult(res, win, qry, ANY_FORM, params);
+    searchResult(res, req.baseUrl, qry, ANY_FORM, params);
+});
+
+router.param('winapi', function (req, res, next, winapi) {
+    res.win = getWin(req, winapi);
+    next();
 });
 
 router.param('winid', function (req, res, next, winid) {
     var qry = winquery().id(winid);
-    win.fetch(qry, function (e, resp, meta) {
+    res.win.fetch(qry, function (e, resp, meta) {
         if (e) {
             throw new Error("Error fetching id == " + winid + ":\n" + e);
         }
@@ -127,7 +162,7 @@ router.param('winid', function (req, res, next, winid) {
     });
 });
 
-router.get('/detail/:winid.pdf', function (req, res, next) {
+router.get('/:winapi/detail/:winid.pdf', function (req, res, next) {
     res.render('product', {product: res.product, style: 'pdf'}, function (err, html) {
         //TODO apply proper error handling
 
@@ -142,7 +177,7 @@ router.get('/detail/:winid.pdf', function (req, res, next) {
     });
 });
 
-router.get('/detail/:winid', function (req, res, next) {
+router.get('/:winapi/detail/:winid', function (req, res, next) {
     console.log("got here with %s", res.product._tobus.id);
     res.render('product', {product: res.product, url: req.originalUrl});
 });

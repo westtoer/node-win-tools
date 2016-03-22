@@ -1,8 +1,8 @@
-mixin miniform(fd, params)
+mixin miniform(fd, params, mount, name)
     - style = attributes.class || "col-lg-3 col-md-4 col-sm-6 col-xs-12"
     - params = params || {}
     div.thumbnail(class!=style)
-        form(action=fd.action, method='get')
+        form(action= mount + "/" + name + "/" + fd.action, method='get')
             input(type="hidden", name="_page", value=params.page)
             input(type="hidden", name="_size", value=params.size)
             .form-group
@@ -13,11 +13,11 @@ mixin miniform(fd, params)
                 |  Zoek
         .clearfix
 
-mixin errorblock(error)
+mixin errorblock(error, mount, name)
     .alert.alert-danger
         strong error:
         = error
-        a.pull-right(href="/search/restart")
+        a.pull-right(href= mount + "/" + name + "/restart")
             button.btn.btn-danger
                 span.glyphicon.glyphicon-refresh
                 |  restart client

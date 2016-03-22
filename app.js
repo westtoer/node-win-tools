@@ -18,6 +18,15 @@ var express = require('express'),
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
+
+// access to the options
+app.locals.options = {};
+app.locals.reloadOptions = function () {
+    app.locals.options.winapis = require('./config/winapis.json');
+    app.locals.options.windumps = require('./config/windumps.json');
+};
+app.locals.reloadOptions();
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));

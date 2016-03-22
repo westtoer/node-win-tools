@@ -1,7 +1,7 @@
-mixin win-header(item, addlink)
+mixin win-header(item, addlink, mount, name)
     div.col-lg-4.col-md-4.col-sm-4.col-xs-4
         if (addlink)
-            a.pull-right(href="/search/id?id=" + item.id)
+            a.pull-right(href= mount + "/" + name + "/id?id=" + item.id)
                 | #{item.lbl}
         else
             | #{item.lbl}
@@ -16,6 +16,6 @@ mixin win-header(item, addlink)
             span.glyphicon.glyphicon-pencil &nbsp;
         a.pull-right(href="http://win.westtoer.be/node/" + item.id, target="_blank")
             span.glyphicon.glyphicon-share &nbsp;
-        a.pull-right(href="/search/detail/" + item.id + ".pdf")
+        a.pull-right(href= mount + "/" + name + "/detail/" + item.id + ".pdf")
             span.glyphicon.glyphicon-print &nbsp;
     div.clearfix
