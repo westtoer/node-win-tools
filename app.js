@@ -11,6 +11,7 @@ var express = require('express'),
 
     routes = require('./routes/index'),
     search = require('./routes/search'),
+    analiz = require('./routes/analysis'),
 
     app = express();
 
@@ -18,12 +19,17 @@ var express = require('express'),
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-
+function freshRequire(path) {
+    delete require.cache[require.resolve(path)];
+    return require(path);
+}
 // access to the options
 app.locals.options = {};
 app.locals.reloadOptions = function () {
-    app.locals.options.winapis = require('./config/winapis.json');
-    app.locals.options.windumps = require('./config/windumps.json');
+    app.locals.options.winapis = freshRequire('./config/winapis.json');
+    console.log("loaded apis: %j", Object.keys(app.locals.options.winapis));
+    app.locals.options.windumps = freshRequire('./config/windumps.json');
+    console.log("loaded dumps: %j", Object.keys(app.locals.options.windumps));
 };
 app.locals.reloadOptions();
 
@@ -43,6 +49,7 @@ app.use(express['static'](path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/search', search);
+app.use('/analyse', analiz);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -9,7 +9,7 @@ block content
         each key in Object.keys(winapis)
             if (key.charAt(0) !== '_')
                 .col-sm-3
-                    a(href="/search/" + key).btn(class=(key === win._name ? 'btn-success' : 'btn-default')) #{key}
+                    a(href=mount + "/" + key).btn(class=(key === win._name ? 'btn-success' : 'btn-default')) #{key}
                     if (key === win._name && ! win.token)
                         +errorblock("Error - (token missing)", mount, win._name)
 

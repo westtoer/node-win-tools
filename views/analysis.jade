@@ -1,0 +1,13 @@
+extends layout
+
+block content
+
+    h2 Selecteer DUMP om te analyseren
+    .row
+        each key in Object.keys(windumps)
+            if (key.charAt(0) !== '_')
+                .col-sm-3
+                    a(href=mount + "/" + key).btn(class=(key === dump._name ? 'btn-success' : 'btn-default')) #{key}
+
+    h2 Status van de dump "#{dump._name}"
+    | todo
