@@ -50,7 +50,7 @@ block content
                                 |  STOP!
                             br
                             | Status: #{prg.step}/#{prg.steps} #{prg.busy}
-                            | ( busy# #{prg.job.running()} | todo# #{prg.job.length()})
+                            | ( busy# #{prg.job.running()} | todo# #{prg.job.length()}/#{prg.stepsize})
                         else
                             br
                             | Status: #{prg.step}/#{prg.steps} #{prg.busy}
