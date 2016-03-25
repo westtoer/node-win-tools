@@ -6071,6 +6071,24 @@ body > .layout {
   height: 100%;
   margin: 0 auto -60px; }
 
+.wrap {
+  padding: 0 1em 0 1em; }
+
+.wrapped {
+  background-color: #fafaff;
+  border-radius: 5px;
+  padding: 10px; }
+
+tr.imgrow td.imgrow-img > img {
+  width: 200px !important; }
+
+tr.imgrow.img-deleted {
+  text-decoration: line-through; }
+
+tr.imgrow.img-published {
+  background-color: rgba(100, 200, 0, 0.5);
+  font-weight: bold; }
+
 #footer, .push {
   height: 60px; }
 

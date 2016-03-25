@@ -1,3 +1,12 @@
+mixin win-links(id, mount, name)
+    a.pull-right(href="http://win.westtoer.be/node/" + id + "/edit", target="_blank")
+        span.glyphicon.glyphicon-pencil &nbsp;
+    a.pull-right(href="http://win.westtoer.be/node/" + id, target="_blank")
+        span.glyphicon.glyphicon-share &nbsp;
+    if (mount && name)
+        a.pull-right(href= mount + "/" + name + "/detail/" + id + ".pdf")
+            span.glyphicon.glyphicon-print &nbsp;
+
 mixin win-header(item, addlink, mount, name)
     div.col-lg-4.col-md-4.col-sm-4.col-xs-4
         if (addlink)
@@ -12,10 +21,5 @@ mixin win-header(item, addlink, mount, name)
                 span.glyphicon.glyphicon-road
                 |   #{item.adr}
     div.col-lg-4.col-md-4.col-sm-4.col-xs-4
-        a.pull-right(href="http://win.westtoer.be/node/" + item.id + "/edit", target="_blank")
-            span.glyphicon.glyphicon-pencil &nbsp;
-        a.pull-right(href="http://win.westtoer.be/node/" + item.id, target="_blank")
-            span.glyphicon.glyphicon-share &nbsp;
-        a.pull-right(href= mount + "/" + name + "/detail/" + item.id + ".pdf")
-            span.glyphicon.glyphicon-print &nbsp;
+        +win-links(item.id, mount, name)
     div.clearfix

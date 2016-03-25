@@ -13,25 +13,25 @@ block content
                 |   Reload
 
     .options.col-sm-6
-        h3 win-api's voor
+        h3 win-api's voor&nbsp;
             a(href="/search") zoekopdrachten
         ul
             each key in Object.keys(options.winapis)
                 if (key.charAt(0) !== '_')
                     li
                         a(href="/search/" + key) #{key}
-                        | #{key === options.winapis._default ? "(default)" : ""}
+                        | #{key === options.winapis._default ? " (*)" : ""}
 
 
     .options.col-sm-6
-        h3 lokale dumps voor
+        h3 lokale dumps voor&nbsp;
             a(href="/analyse") analyses
         ul
             each key in Object.keys(options.windumps)
                 if (key.charAt(0) !== '_')
                     li
                         a(href="/analyse/" + key) #{key}
-                        | #{key === options.windumps._default ? "(default)" : ""}
+                        | #{key === options.windumps._default ? " (*)" : ""}
 
 
 

@@ -7,7 +7,55 @@ block content
         each key in Object.keys(windumps)
             if (key.charAt(0) !== '_')
                 .col-sm-3
-                    a(href=mount + "/" + key).btn(class=(key === dump._name ? 'btn-success' : 'btn-default')) #{key}
+                    a.btn(href=mount + "/" + key, class=(key === dump._name ? 'btn-success' : 'btn-default'))
+                        span.glyphicon(class=(key === dump._name ? 'glyphicon-ok' : 'glyphicon-play-circle'))
+                        |
+                        = key
 
-    h2 Status van de dump "#{dump._name}"
-    | todo
+    h2 Controle-jobs op de dump "#{dump._name}"
+    if (dump.error && dump.error.length)
+        .alert.alert-danger
+            strong error:
+            = dump.error
+    each check in Object.keys(dump.check)
+        .col-sm-6.wrap
+            .wrapped
+                h3= check
+                if (dump.path !== undefined)
+                    - var tjk = dump.check[check]
+                    dl
+                        dt Laatste run gestart:
+                        dd #{tjk.started ? tjk.started.fromNow() : "-"}
+                        dt Laatste resultaat klaar:
+                        dd #{tjk.ended ? tjk.ended.fromNow() : "-"}
+                    hr
+                    if (tjk.results && Object.keys(tjk.results).length)
+                        | Resultaat:&nbsp;
+                        a.btn.btn-primary(href=mount + "/" + dump._name + "/result/" + check )
+                            span.glyphicon.glyphicon-th-list
+                            |  Detail
+                    else
+                        | Nog geen resultaat beschikbaar.
+                    hr
+                    if (tjk.active)
+                        - var prg = tjk.progress
+                        | Aktief&nbsp;
+                        a.btn.btn-primary(href=mount + "/" + dump._name)
+                            span.glyphicon.glyphicon-flash
+                            |  Status Update
+                        if (prg.job)
+                            |
+                            a.btn.btn-danger(href=mount + "/" + dump._name + "/stop-" + check )
+                                span.glyphicon.glyphicon-off
+                                |  STOP!
+                            br
+                            | Status: #{prg.step}/#{prg.steps} #{prg.busy}
+                            | ( busy# #{prg.job.running()} | todo# #{prg.job.length()})
+                        else
+                            br
+                            | Status: #{prg.step}/#{prg.steps} #{prg.busy}
+                    else
+                        | Gestopt&nbsp;
+                        a.btn.btn-success(href=mount + "/" + dump._name + "/start-" + check )
+                            span.glyphicon.glyphicon-play
+                            |  Activeer

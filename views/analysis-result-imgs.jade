@@ -1,0 +1,73 @@
+extends layout
+
+include mixins/win-blocks
+
+mixin table_head
+    tr
+        th winid
+        th deleted
+        th published
+        th imguri
+        th status
+
+mixin table_row(line)
+    tr.imgrow(class=(line.deleted ? "img-deleted " : "") + (line.published ? "img-published " : ""))
+        td
+            each id in line.winid.split('|')
+                +win-links(id)
+                = line.winid
+                br
+        td= line.deleted
+        td= line.published
+        td.imgrow-img
+            if (line.imguri === "#N/A")
+                = line.imguri
+            else
+                img.img-thumbnail.img-rounded.img-responsive(src=line.imguri)= line.imguri
+        td
+            = line.status
+
+mixin table_section(set, title, descr, anc)
+    a(name=anc)
+    h3   #{title} (#{Object.keys(set).length})
+    table.table.table-striped.table-hover.table-bordered
+        caption
+            = descr
+            | &nbsp;|&nbsp;
+            a.btn.btn-default(href="#top")
+                span.glyphicon.glyphicon-upload
+                |  top
+        thead
+            +table_head()
+        tbody
+            each key in Object.keys(set)
+                +table_row(set[key])
+
+block content
+    a(name="top")
+    h2
+        | Resultaten van '#{check}' op de dump "
+        a(href=mount + "/" + dump._name, name="top")= dump._name
+        | "
+    if (dump.error && dump.error.length)
+        .alert.alert-danger
+            strong error:
+            = dump.error
+
+    .col-sm-12
+        a(href="#badimgs") Kapotte Beelden
+        |  &nbsp;|&nbsp;
+        a(href="#errurls") BeeldURI ongeldig
+        | &nbsp;|&nbsp;
+        a(href="#multi_use") Dubbele Beelden
+        | &nbsp;|&nbsp;
+        a(href="#noimgs") Ontbrekende Beelden
+
+    .col-sm-12
+        +table_section(results.badimgs, "Kapotte Beelden", "Beelden niet goed opgeladen in mediabank.", "badimgs")
+    .col-sm-12
+        +table_section(results.errurls, "BeeldURI ongeldig", "Niet download-bare beelden.", "errurls")
+    .col-sm-12
+        +table_section(results.multi_use, "Dubbele Beelden", "Beelden toegekend aan meer dan 1 win product.", "multi_use")
+    .col-sm-12
+        +table_section(results.noimgs, "Ontbrekende Beelden", "Win producten zonder ge-associeerde beelden.", "noimgs")

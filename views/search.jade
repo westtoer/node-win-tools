@@ -9,7 +9,10 @@ block content
         each key in Object.keys(winapis)
             if (key.charAt(0) !== '_')
                 .col-sm-3
-                    a(href=mount + "/" + key).btn(class=(key === win._name ? 'btn-success' : 'btn-default')) #{key}
+                    a.btn(href=mount + "/" + key, class=(key === dump._name ? 'btn-success' : 'btn-default'))
+                        span.glyphicon(class=(key === dump._name ? 'glyphicon-ok' : 'glyphicon-play-circle'))
+                        |
+                        = key
                     if (key === win._name && ! win.token)
                         +errorblock("Error - (token missing)", mount, win._name)
 
