@@ -9,7 +9,7 @@ block content
                 .col-sm-3
                     a.btn(href=mount + "/" + key, class=(key === dump._name ? 'btn-success' : 'btn-default'))
                         span.glyphicon(class=(key === dump._name ? 'glyphicon-ok' : 'glyphicon-play-circle'))
-                        |
+                        |  &nbsp;
                         = key
 
     h2 Controle-jobs op de dump "#{dump._name}"
@@ -44,7 +44,7 @@ block content
                             span.glyphicon.glyphicon-flash
                             |  Status Update
                         if (prg.job)
-                            |
+                            |  &nbsp;
                             a.btn.btn-danger(href=mount + "/" + dump._name + "/stop-" + check )
                                 span.glyphicon.glyphicon-off
                                 |  STOP!
