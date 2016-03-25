@@ -35,6 +35,10 @@ settings = argv
     .alias('r', 'recurse')
     .default('r', false)
 
+    .describe('pattern', 'regex patroon waaraan de filenames moeten voldoen.')
+    .alias('p', 'pattern')
+    .default('p', '.*-all\\.xml$')
+
     .require(1)
 
     .argv;
@@ -51,7 +55,7 @@ function outputDir(s) {
 
 function fileCheck(s) {
     var outd = outputDir(s);
-    fc.check(s.input, s.recurse, function (err, results) {
+    fc.check(s.input, s.pattern, s.recurse, function (err, results) {
         rwcsv.write(path.join(outd, "file_updates.csv"), results.byfile,
                  ["file", "mtime", "min_upd", "max_upd"]);
     });
@@ -68,7 +72,7 @@ function writeCSV(outf, dbag, headers) {
 
 function imgCheck(s) {
     var outd = outputDir(s);
-    mc.check(s.input, s.recurse, function (err, results) {
+    mc.check(s.input, s.pattern, s.recurse, function (err, results) {
         writeCSV(path.join(outd, "bad_images.csv"),   results.badimgs,
                  ["winid", "deleted", "published", "imguri", "broken"]);
         writeCSV(path.join(outd, "no_images.csv"),    results.noimgs,
