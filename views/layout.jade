@@ -1,13 +1,13 @@
 extends basic
 
 block layout
-    .layout
+    .layout(class= (menu === false ? "nomenu" : ""))
         header
             include includes/header.jade
 
         .wrapper
             article
-                div.container
+                div(class= (fluid === true ? "container-fluid": "container") )
                     block content
             .push
 

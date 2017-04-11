@@ -12,6 +12,7 @@ var express = require('express'),
     routes = require('./routes/index'),
     search = require('./routes/search'),
     analiz = require('./routes/analysis'),
+    webcams = require('./routes/webcams'),
 
     app = express();
 
@@ -50,6 +51,7 @@ app.use(express['static'](path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/search', search);
 app.use('/analyse', analiz);
+app.use('/cams', webcams);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

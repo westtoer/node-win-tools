@@ -5827,6 +5827,9 @@ html, body, body > .layout {
 body > .layout {
   padding-top: 60px; }
 
+body > .layout.nomenu {
+  padding-top: 0px; }
+
 .wrapper {
   min-height: 100%;
   height: auto !important;
@@ -5875,5 +5878,14 @@ tr.imgrow.img-published {
     .fiche .fiche-block .title {
       font-size: 2em;
       font-style: bold; }
+
+.overlay-container {
+  position: relative; }
+
+.overlay {
+  position: absolute;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.15);
+  z-index: 1; }
 
 /*# sourceMappingURL=style.css.map */
