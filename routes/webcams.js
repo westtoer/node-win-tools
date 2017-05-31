@@ -8,7 +8,7 @@ var express = require('express'),
     cheerio = require('cheerio'),
     router = express.Router(),
     options = {},
-    INTERVAL = 5 * 60 * 1000,
+    INTERVAL = 60 * 1000,
     DELTA = 100,
     launchDelta = 100,
     METEO_BASE_URL = "http://www.meteo.be",
@@ -22,6 +22,10 @@ var express = require('express'),
     REGEXP_SCRIPT = /var\s*address\s*=\s*'([^']*)';\s*var\s*streamid\s*=\s*'([^']*)';/im,
     processCache = {};
 
+
+function camPlayerRef(alias) {
+    return PLAYER + alias + '&autoplay=true';
+}
 
 function grabPageContentToProcess(url, contentFn) {
     var page, status;
@@ -49,7 +53,7 @@ function updatePage(alias) {
         var $img = $('div.image > img').last(), // grab last image in the class-decorated div
             imgsrc = METEO_BASE_URL +  $img.attr('src'); // get its src attr
         
-        processCache[alias].setImgSrc(imgsrc);
+        processCache[alias].updateCache(imgsrc);
     });
 }
 
@@ -59,7 +63,8 @@ function updateCam(alias) {
             match = REGEXP_SCRIPT.exec(script),
             address,
             streamid,
-            imgsrc;
+            imgsrc,
+            plyref;
         
         if (!match) {
             console.log("script doesn't match pattern for address and streamid");
@@ -69,11 +74,13 @@ function updateCam(alias) {
             streamid = match[2];
             if (streamid === null || streamid === undefined || streamid.length === 0) {
                 imgsrc = 'http://new.ipcamlive.com/player/connecting.gif';
+                plyref = '';
             } else {
                 imgsrc = address + '/streams/' + streamid + '/snapshot.jpg';
+                plyref = camPlayerRef(alias);
             }
         }
-        processCache[alias].setImgSrc(imgsrc);
+        processCache[alias].updateCache(imgsrc, plyref);
     });
 }
 
@@ -89,8 +96,11 @@ function AliasCache(alias, plyref, updateFn) {
     this.schedule(launchDelta);
     launchDelta += DELTA;
 }
-AliasCache.prototype.setImgSrc = function (src) {
+AliasCache.prototype.updateCache = function (src, plyref) {
     this.imgsrc = src;
+    if (plyref !== undefined) {
+        this.plyref = plyref;
+    }
     this.updts = Date.now();
     console.log("updated img for '%s' ==>  %s", this.alias, this.imgsrc);
     this.repeat();
@@ -119,11 +129,11 @@ function init() {
     phantom.create(['--ignore-ssl-errors=yes', '--load-images=no']).then(function (instance) {
         webagent = instance;
         Object.keys(PAGES).forEach(function (alias) {
-            initAlias(alias, PAGES[alias], function () { updatePage(alias); });
+            initAlias(alias, '', function () { updatePage(alias); });
         });
 
         CAMS.forEach(function (alias) {
-            initAlias(alias, PLAYER + alias + '&autoplay=true', function () { updateCam(alias); });
+            initAlias(alias, camPlayerRef(alias), function () { updateCam(alias); });
         });
     });
 }
