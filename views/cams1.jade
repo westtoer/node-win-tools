@@ -1,0 +1,13 @@
+extends layout
+
+block content
+    .row
+        - var locs = ["blankenberge", "bredene", "dehaanwenduine", "depanne", "knokkeheist", "koksijdeoostduinkerke", "middelkerkewestende", "nieuwpoort", "oostende", "zeebrugge"]
+        
+        each loc, index in locs
+            .col-xs-12.col-sm-6.col-md-4.col-lg-3.overlay-container
+                .row
+                    .col-xs-12.overlay
+                        h4= loc
+                    .col-xs-12.embed-responsive.embed-responsive-4by3
+                        iframe.embed-responsive-item(src="http://ipcamlive.com/player/player.php?alias=" + loc)

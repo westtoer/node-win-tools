@@ -5888,4 +5888,11 @@ tr.imgrow.img-published {
   background-color: rgba(0, 0, 0, 0.15);
   z-index: 1; }
 
+.imgframe {
+  height: 360px;
+  background-image: url("../img/none.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: 50% 50%; }
+
 /*# sourceMappingURL=style.css.map */

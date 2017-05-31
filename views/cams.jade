@@ -2,12 +2,21 @@ extends layout
 
 block content
     .row
-        - var locs = ["blankenberge", "bredene", "dehaanwenduine", "depanne", "knokkeheist", "koksijdeoostduinkerke", "middelkerkewestende", "nieuwpoort", "oostende", "zeebrugge"]
+        - var aliases = ["blankenberge", "bredene", "dehaanwenduine", "depanne", "knokkeheist", "koksijdeoostduinkerke", "middelkerkewestende", "nieuwpoort", "oostende", "zeebrugge", "melle", "ukkel"]
         
-        each loc, index in locs
+        each alias, index in aliases
             .col-xs-12.col-sm-6.col-md-4.col-lg-3.overlay-container
                 .row
                     .col-xs-12.overlay
-                        h4= loc
-                    .col-xs-12.embed-responsive.embed-responsive-4by3
-                        iframe.embed-responsive-item(src="http://ipcamlive.com/player/player.php?alias=" + loc)
+                        h4= alias
+                    .col-xs-12.cam(data-alias=alias)
+                        br
+                        br
+                        | loading... 
+                        br
+                        = alias
+                        br
+                        | ...
+
+block scripts
+     script(type="text/javascript", src="/javascripts/cams.js")

@@ -53,6 +53,42 @@ app.use('/search', search);
 app.use('/analyse', analiz);
 app.use('/cams', webcams);
 
+
+// this function is called when you want the server to die gracefully
+// i.e. wait for existing connections
+var gracefulShutdown = function () {
+    console.log("Received kill signal, shutting down gracefully.");
+    function forcedExit(clean) {
+        clean = clean || false;
+        if (!clean) {
+            console.error("Could not close connections in time, forcefully shutting down");
+        }
+        process.exit();
+    }
+    function endExpress() {
+        app.close(function () {
+            console.log("Closed out remaining connections.");
+            forcedExit(true);
+        });
+    }
+    function endRoutes() {
+        webcams.shutdown(function () {
+            console.log("Closed out remaining connections.");
+            endExpress();
+        });
+    }
+  
+    // if after 
+    setTimeout(forcedExit, 10 * 1000);
+};
+
+// listen for TERM signal .e.g. kill 
+process.on('SIGTERM', gracefulShutdown);
+
+// listen for INT signal e.g. Ctrl-C
+process.on('SIGINT', gracefulShutdown);
+
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     var err = new Error('Not Found');
