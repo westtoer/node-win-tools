@@ -2,6 +2,10 @@
 config/winapis.json
 config/windumps.json
 
+# no need for generated files in repo
+public/stylesheets/style.css
+public/stylesheets/style.css.map
+
 # symlinks to data
 _link-data/
 
