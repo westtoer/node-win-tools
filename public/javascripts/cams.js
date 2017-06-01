@@ -35,15 +35,20 @@
                 $a = $('<a>'),
                 update = function () {
                     $.getJSON('/cams/' + alias, function (data, status, xhr) {
-                        if (status !== 'success') {
-                            console.log("bad response for alias '%s' ==> %s", alias, status);
+                        try {
+                            if (status !== 'success') {
+                                console.log("bad response for alias '%s' ==> %s", alias, status);
+                            }
+                            console.log("data for alias '%s'", alias, data);
+                            loadImageThen(data.image, function () {
+                                $img.css("background-image", "url(" + data.image + ")");
+                            });
+                            $a.attr("href", data.player);
+                            $cam.data('player', data.player);
+                            $cam.data('score', data.score);
+                        } catch (e) {
+                            console.error('error in execution of cam update (' + alias + ') ==> ' + e);
                         }
-                        console.log("data for alias '%s'", alias, data);
-                        loadImageThen(data.image, function () {
-                            $img.css("background-image", "url(" + data.image + ")");
-                        });
-                        $a.attr("href", data.player);
-                        $cam.data('player', data.player);
                         
                         setTimeout(update, UPDATE_PERIOD);
                     });
@@ -56,33 +61,43 @@
         
         // do something to let each player in turn get focus
         function toggleFocus() {
-            var prevState = $focus.data('state'),
-                index = $focus.data('index'),
-                player =  '',
-                alias = '',
+            var prevState, index, player =  '', label = '??', score = '*', newState;
+            try {
+                prevState = $focus.data('state');
+                index = $focus.data('index');
+                player =  '';
+                label = '';
+                score = '*';
                 newState = !prevState;
-            
-            if (newState) {
-                // find next cam with available player
-                while (player.length === 0) {
-                    index = (index + 1) % numcams;
-                    player = $cams.eq(index).data('player');
+
+                if (newState) {
+                    // find next cam with available player
+                    while (player.length === 0) {
+                        index = (index + 1) % numcams;
+                        player = $cams.eq(index).data('player');
+                    }
+
+                    label = $cams.eq(index).data('label');
+                    score = $cams.eq(index).data('score');
+                    // TODO inject alias in fixed position banner... 
+                    $focus.html('<div class="bar col-xs-12">&nbsp;' + label + '&nbsp;'
+                              + '<span class="pull-right">' + score + '</span></div>'
+                              + '<iframe class="embed-responsive-item" src="' + player + '">');
+                    $focus.show();
+                    $('.overlay').hide(); // had to do this because z-index stuff kreeps above iframe?
+                } else {
+                    $focus.html(''); // empty that player code
+                    $focus.hide();
+                    $('.overlay').show(); // had to do this because z-index stuff kreeps above iframe?
                 }
-                
-                alias = $cams.eq(index).data('alias');
-                // TODO inject alias in fixed position banner... 
-                $focus.html('<div class="bar">&nbsp;' + alias + '&nbsp;</div>'
-                          + '<iframe class="embed-responsive-item" src="' + player + '">');
-                $focus.show();
-                $('.overlay').hide();
-            } else {
-                $focus.html('');
-                $focus.hide();
-                $('.overlay').show();
+
+                $focus.data('state', newState);
+                $focus.data('index', index);
+
+            } catch (e) {
+                console.error('error in execution of focus switch ==> ' + e);
             }
             
-            $focus.data('state', newState);
-            $focus.data('index', index);
             setTimeout(toggleFocus, FOCUS_PERIOD);
         }
         

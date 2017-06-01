@@ -4,6 +4,8 @@
 
 var express = require('express'),
     phantom = require('phantom'),
+    moment = require('moment'),
+    util = require('util'),
     webagent,
     cheerio = require('cheerio'),
     router = express.Router(),
@@ -19,6 +21,7 @@ var express = require('express'),
     CAMS = ["blankenberge", "bredene", "dehaanwenduine", "depanne", "knokkeheist", "koksijdeoostduinkerke",
             "middelkerkewestende", "nieuwpoort", "oostende", "zeebrugge" ],
     PLAYER = "http://ipcamlive.com/player/player.php?alias=",
+    NO_CONNECTION_GIF = 'http://new.ipcamlive.com/player/connecting.gif',
     REGEXP_SCRIPT = /var\s*address\s*=\s*'([^']*)';\s*var\s*streamid\s*=\s*'([^']*)';/im,
     processCache = {};
 
@@ -35,88 +38,125 @@ function grabPageContentToProcess(url, contentFn) {
         page.open(url).then(function (status) {
             if (status !== 'success') {
                 console.log("Failed to load url ==> (%s) @ %s", status, url);
-            }
-            page.property('content').then(function (content) {
-                // find the snapshot/image
-                page.evaluate(function () {
-                    return document.documentElement.innerHTML;
-                }).then(function (doc) {
-                    contentFn(cheerio.load(doc));
+                contentFn();
+            } else {
+                page.property('content').then(function (content) {
+                    // find the snapshot/image
+                    page.evaluate(function () {
+                        return document.documentElement.innerHTML;
+                    }).then(function (doc) {
+                        contentFn(cheerio.load(doc));
+                    });
                 });
-            });
+            }
         });
     });
 }
 
 function updatePage(alias) {
     grabPageContentToProcess(PAGES[alias], function ($) {
-        var $img = $('div.image > img').last(), // grab last image in the class-decorated div
-            imgsrc = METEO_BASE_URL +  $img.attr('src'); // get its src attr
-        
-        processCache[alias].updateCache(imgsrc);
+        var $img, success = false, imgsrc = null;
+        try {
+            if ($ !== undefined) {
+                $img = $('div.image > img').last(); // grab last image in the class-decorated div
+                imgsrc = $img.attr('src');
+
+                if (imgsrc !== undefined && imgsrc !== null && imgsrc.length !== 0) {
+                    success = true;
+                    imgsrc = success ? (METEO_BASE_URL +  imgsrc) : '';
+                }
+            }
+        } catch (e) {
+            console.error("Exception during grabPage for '" + alias + "' ==> " + e);
+        }
+        processCache[alias].updateCache(success, imgsrc);
     });
 }
 
 function updateCam(alias) {
     grabPageContentToProcess(PLAYER + alias, function ($) {
-        var script = $('script:not([src])').first().html(),
-            match = REGEXP_SCRIPT.exec(script),
-            address,
-            streamid,
-            imgsrc,
-            plyref;
-        
-        if (!match) {
-            console.log("script doesn't match pattern for address and streamid");
-            imgsrc = null;
-        } else {
-            address = match[1];
-            streamid = match[2];
-            if (streamid === null || streamid === undefined || streamid.length === 0) {
-                imgsrc = 'http://new.ipcamlive.com/player/connecting.gif';
-                plyref = '';
-            } else {
-                imgsrc = address + '/streams/' + streamid + '/snapshot.jpg';
-                plyref = camPlayerRef(alias);
+        var success = false, imgsrc = null, script, match, address, streamid, plyref;
+        try {
+            if ($ !== undefined) {
+                script = $('script:not([src])').first().html();
+                match = REGEXP_SCRIPT.exec(script);
+
+                if (!match) {
+                    console.log("script doesn't match pattern for address and streamid");
+                } else {
+                    address = match[1];
+                    streamid = match[2];
+                    if (streamid === null || streamid === undefined || streamid.length === 0) {
+                        imgsrc = NO_CONNECTION_GIF;
+                        plyref = '';
+                    } else {
+                        success = true;
+                        imgsrc  = address + '/streams/' + streamid + '/snapshot.jpg';
+                        plyref  = camPlayerRef(alias);
+                    }
+                }
             }
+        } catch (e) {
+            console.error("Exception during grab-CAM for '" + alias + "' ==> " + e);
         }
-        processCache[alias].updateCache(imgsrc, plyref);
+        processCache[alias].updateCache(success, imgsrc, plyref);
     });
 }
 
 function AliasCache(alias, plyref, updateFn) {
+    var me = this;
     this.alias = alias;
     this.plyref = plyref;
-    this.fetchUpdate = updateFn;
+    this.fetchUpdate = function () {
+        me.handle = null;
+        updateFn();
+    };
+    
     this.imgsrc = null;
     this.handle = null;
     this.updts = null;
+    this.cnt = {success: 0, all: 0};
     
+    // register for launch (with spread)
     console.log("1st schedule for %s at %d", alias, launchDelta);
     this.schedule(launchDelta);
     launchDelta += DELTA;
 }
-AliasCache.prototype.updateCache = function (src, plyref) {
-    this.imgsrc = src;
-    if (plyref !== undefined) {
-        this.plyref = plyref;
+AliasCache.prototype.updateCache = function (success, src, plyref) {
+    try {
+        this.cnt.success += success ? 1 : 0;
+        this.cnt.all += 1;
+        this.imgsrc = src;
+        if (plyref !== undefined) {
+            this.plyref = plyref;
+        }
+        this.updts = Date.now();
+        console.log("updated img for '%s' ==>  %s", this.alias, this.imgsrc);
+    } catch (e) {
+        console.error("Error in update of '" + this.alias + "' ==> " + e);
     }
-    this.updts = Date.now();
-    console.log("updated img for '%s' ==>  %s", this.alias, this.imgsrc);
     this.repeat();
 };
 AliasCache.prototype.repeat = function () {
     this.schedule(INTERVAL);
 };
 AliasCache.prototype.schedule = function (at) {
-    setTimeout(this.fetchUpdate, at);
+    this.handle = setTimeout(this.fetchUpdate, at);
+};
+AliasCache.prototype.unschedule = function () {
+    if (this.handle !== null) {
+        clearTimeout(this.handle);
+    }
 };
 AliasCache.prototype.asDO = function () {
     return {
         "alias"    : this.alias,
         "image"    : this.imgsrc,
-        "updatets" : this.updts,
-        "player"   : this.plyref
+        "updatets" : moment(this.updts).format(),
+        "player"   : this.plyref,
+        "score"    : util.format("%d/%d (%s %%)", this.cnt.success, this.cnt.all,
+                                 Math.round(100 * this.cnt.success / this.cnt.all)),
+        "handler"  : (this.handler === null ? 'off' : 'on')
     };
 };
 
@@ -124,7 +164,16 @@ function initAlias(alias, plyref, updateFn) {
     processCache[alias] = new AliasCache(alias, plyref, updateFn);
 }
 
+function stopCacheAndClear() {
+    Object.keys(processCache).forEach(function (alias) {
+        processCache[alias].unschedule();
+    });
+    processCache = {};
+}
+
 function init() {
+    stopCacheAndClear();
+    
     console.log("initialising the phantom");
     phantom.create(['--ignore-ssl-errors=yes', '--load-images=no']).then(function (instance) {
         webagent = instance;
@@ -155,6 +204,11 @@ router.get('/', function (req, res, next) {
         options: req.app.locals.options
     };
     res.render('cams', pageData);
+});
+
+router.get('/reinit', function (req, res, next) {
+    init();
+    res.redirect(req.baseUrl + '/cams.json');
 });
 
 router.get('/cams.json', function (req, res, next) {

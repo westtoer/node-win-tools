@@ -2,19 +2,19 @@ extends layout
 
 block content
     .row
-        - var aliases = ["blankenberge", "bredene", "dehaanwenduine", "depanne", "knokkeheist", "koksijdeoostduinkerke", "middelkerkewestende", "nieuwpoort", "oostende", "zeebrugge", "melle", "ukkel"]
+        - var locations = [{ "alias": "depanne", "label": "De Panne"}, { "alias": "koksijdeoostduinkerke", "label": "Koksijde - Oostduinkerke"}, { "alias": "nieuwpoort" , "label": "Nieuwpoort"}, { "alias": "middelkerkewestende", "label": "Middelkerke - Westende"}, { "alias": "oostende", "label": "Oostende"}, { "alias": "bredene", "label": "Bredene"}, { "alias": "dehaanwenduine", "label": "De Haan - Wenduine"}, { "alias": "blankenberge", "label": "Blankenberge"}, { "alias": "zeebrugge", "label": "Zeebrugge"}, { "alias": "knokkeheist", "label": "Knokke - Heist"}, { "alias": "melle", "label": "Melle", "cls": "BL"}, { "alias": "ukkel", "label": "Ukkel", "cls": "BL"}]
         
-        each alias, index in aliases
+        each loc, index in locations
             .col-xs-12.col-sm-6.col-md-4.col-lg-3.overlay-container
                 .row
-                    .col-xs-12.overlay
-                        h4= alias
-                    .col-xs-12.cam(data-alias=alias)
+                    .col-xs-12.overlay(class=loc.cls)
+                        h4= loc.label
+                    .col-xs-12.cam(data-alias=loc.alias, data-label=loc.label)
                         br
                         br
                         | loading... 
                         br
-                        = alias
+                        = loc.label
                         br
                         | ...
 
