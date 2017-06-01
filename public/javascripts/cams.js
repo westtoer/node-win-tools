@@ -34,23 +34,29 @@
                 $img = $('<div class="row imgframe"></div>'),
                 $a = $('<a>'),
                 update = function () {
-                    $.getJSON('/cams/' + alias, function (data, status, xhr) {
-                        try {
-                            if (status !== 'success') {
-                                console.log("bad response for alias '%s' ==> %s", alias, status);
+                    $.ajax({
+                        dataType: 'json',
+                        url: '/cams/' + alias,
+                        success: function (data, status, xhr) {
+                            try {
+                                if (status !== 'success') {
+                                    console.log("bad response for alias '%s' ==> %s", alias, status);
+                                }
+                                loadImageThen(data.image, function () {
+                                    $img.css("background-image", "url(" + data.image + ")");
+                                });
+                                $a.attr("href", data.player);
+                                $cam.data('player', data.player);
+                                $cam.data('score', data.score);
+                            } catch (e) {
+                                console.error('error in execution of cam update (' + alias + ') ==> ' + e);
                             }
-                            console.log("data for alias '%s'", alias, data);
-                            loadImageThen(data.image, function () {
-                                $img.css("background-image", "url(" + data.image + ")");
-                            });
-                            $a.attr("href", data.player);
-                            $cam.data('player', data.player);
-                            $cam.data('score', data.score);
-                        } catch (e) {
-                            console.error('error in execution of cam update (' + alias + ') ==> ' + e);
+                            setTimeout(update, UPDATE_PERIOD);
+                        },
+                        error: function (xhr, status, err) {
+                            console.error('error in ajax retrieval for cam update (' + alias + ') ==> ' + err);
+                            setTimeout(update, 10 * UPDATE_PERIOD); // wait longer for retry
                         }
-                        
-                        setTimeout(update, UPDATE_PERIOD);
                     });
                 };
             
@@ -61,20 +67,22 @@
         
         // do something to let each player in turn get focus
         function toggleFocus() {
-            var prevState, index, player =  '', label = '??', score = '*', newState;
+            var prevState, prevIndex, index, player =  '', label = '??', score = '*', newState;
             try {
+                prevIndex = $focus.data('index');
                 prevState = $focus.data('state');
-                index = $focus.data('index');
-                player =  '';
-                label = '';
-                score = '*';
+
                 newState = !prevState;
 
                 if (newState) {
+                    index = prevIndex;
                     // find next cam with available player
                     while (player.length === 0) {
                         index = (index + 1) % numcams;
                         player = $cams.eq(index).data('player');
+                        if (index === prevIndex) { // looped around in vain
+                            throw "no new focus cams available have to skip";
+                        }
                     }
 
                     label = $cams.eq(index).data('label');
