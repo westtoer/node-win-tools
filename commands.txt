@@ -1,12 +1,12 @@
 -- dev
-PORT=3000 DEBUG=win-tools:* nodemon bin/www 
+PORT=3000 DEBUG=win-tools:* nodemon bin/www  
 
 -- stop
 taskkill /IM node.exe -F
 
 
 -- deploy
-PORT=3000 DEBUG=win-tools:* node --max-old-space-size=3072 bin/www 
+PORT=3000 DEBUG=win-tools:* node --max-old-space-size=3072 bin/www > /tmp/nodewin.out.txt 2> /tmp/nodewin.err.txt
 
 
 
