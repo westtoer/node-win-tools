@@ -4,11 +4,6 @@
 (function () {
     "use strict";
     
-    // unclear do we need registration?
-    
-    // http://new.ipcamlive.com/player/registerviewer.php?_=1495632543070&alias=nieuwpoort&type=HTML5 ==> {"result":"ok","data":{"viewerid":125284173}}
-    // http://new.ipcamlive.com/player/getcamerastreamstate.php?_=1495632603332&token=&alias=nieuwpoort ==> 
-    
     var UPDATE_PERIOD = 15 * 1000,
         FOCUS_PERIOD = 60 * 1000;
     
@@ -51,7 +46,6 @@
                             } catch (e) {
                                 console.error('error in execution of cam update (' + alias + ') ==> ' + e);
                             }
-                            setTimeout(update, UPDATE_PERIOD);
                         },
                         error: function (xhr, status, err) {
                             console.error('error in ajax retrieval for cam update (' + alias + ') ==> ' + err);
@@ -63,6 +57,7 @@
             $cam.html('');
             $cam.append($a.append($img));
             update();
+            setInterval(update, UPDATE_PERIOD);
         });
         
         // do something to let each player in turn get focus
@@ -105,10 +100,8 @@
             } catch (e) {
                 console.error('error in execution of focus switch ==> ' + e);
             }
-            
-            setTimeout(toggleFocus, FOCUS_PERIOD);
         }
         
-        setTimeout(toggleFocus, FOCUS_PERIOD);
+        setInterval(toggleFocus, FOCUS_PERIOD);
     });
 }());

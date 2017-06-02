@@ -11,8 +11,6 @@ var express = require('express'),
     router = express.Router(),
     options = {},
     INTERVAL = 60 * 1000,
-    DELTA = 100,
-    launchDelta = 100,
     METEO_BASE_URL = "http://www.meteo.be",
     PAGES = {
         "melle" : METEO_BASE_URL + "/meteo/view/nl/2359771-Webcam+Melle.html",
@@ -107,20 +105,15 @@ function AliasCache(alias, plyref, updateFn) {
     var me = this;
     this.alias = alias;
     this.plyref = plyref;
-    this.fetchUpdate = function () {
-        me.handle = null;
-        updateFn();
-    };
+    this.fetchUpdate = updateFn;
     
     this.imgsrc = null;
     this.handle = null;
     this.updts = null;
     this.cnt = {success: 0, all: 0};
     
-    // register for launch (with spread)
-    console.log("1st schedule for %s at %d", alias, launchDelta);
-    this.schedule(launchDelta);
-    launchDelta += DELTA;
+    this.fetchUpdate();
+    this.schedule();
 }
 AliasCache.prototype.updateCache = function (success, src, plyref) {
     try {
@@ -135,17 +128,13 @@ AliasCache.prototype.updateCache = function (success, src, plyref) {
     } catch (e) {
         console.error("Error in update of '" + this.alias + "' ==> " + e);
     }
-    this.repeat();
 };
-AliasCache.prototype.repeat = function () {
-    this.schedule(INTERVAL);
-};
-AliasCache.prototype.schedule = function (at) {
-    this.handle = setTimeout(this.fetchUpdate, at);
+AliasCache.prototype.schedule = function () {
+    this.handle = setInterval(this.fetchUpdate, INTERVAL);
 };
 AliasCache.prototype.unschedule = function () {
     if (this.handle !== null) {
-        clearTimeout(this.handle);
+        clearInterval(this.handle);
     }
 };
 AliasCache.prototype.asDO = function () {
@@ -156,7 +145,7 @@ AliasCache.prototype.asDO = function () {
         "player"   : this.plyref,
         "score"    : util.format("%d/%d (%s %%)", this.cnt.success, this.cnt.all,
                                  Math.round(100 * this.cnt.success / this.cnt.all)),
-        "handler"  : (this.handler === null ? 'off' : 'on')
+        "timer"  : (this.handler === null ? 'off' : 'on')
     };
 };
 
@@ -243,11 +232,8 @@ router.param('alias', function (req, res, next, alias) {
 router.shutdown = function () {
     console.log("shutting down the phantom");
     phantom.exit();
-    Object.keys(processCache).forEach(function (alias) {
-        if (processCache[alias].handle) {
-            clearTimeout(processCache[alias].handle);
-        }
-    });
+
+    stopCacheAndClear();
 };
 
 module.exports = router;
