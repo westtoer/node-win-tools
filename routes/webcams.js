@@ -31,19 +31,23 @@ function grabPageContentToProcess(url, contentFn) {
     var page, status;
     // use phantom instance to get the page
     phantom.create(['--ignore-ssl-errors=yes', '--load-images=no']).then(function (webagent) {
+        function done($doc) {
+            webagent.exit();
+            contentFn($doc);
+        }
         webagent.createPage().then(function (page) {
             console.log("loading %s", url);
             page.open(url).then(function (status) {
                 if (status !== 'success') {
                     console.log("Failed to load url ==> (%s) @ %s", status, url);
-                    contentFn();
+                    done();
                 } else {
                     page.property('content').then(function (content) {
                         // find the snapshot/image
                         page.evaluate(function () {
                             return document.documentElement.innerHTML;
                         }).then(function (doc) {
-                            contentFn(cheerio.load(doc));
+                            done(cheerio.load(doc));
                         });
                     });
                 }
