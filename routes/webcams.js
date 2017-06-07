@@ -6,7 +6,6 @@ var express = require('express'),
     phantom = require('phantom'),
     moment = require('moment'),
     util = require('util'),
-    webagent,
     cheerio = require('cheerio'),
     router = express.Router(),
     options = {},
@@ -31,22 +30,24 @@ function camPlayerRef(alias) {
 function grabPageContentToProcess(url, contentFn) {
     var page, status;
     // use phantom instance to get the page
-    webagent.createPage().then(function (page) {
-        console.log("loading %s", url);
-        page.open(url).then(function (status) {
-            if (status !== 'success') {
-                console.log("Failed to load url ==> (%s) @ %s", status, url);
-                contentFn();
-            } else {
-                page.property('content').then(function (content) {
-                    // find the snapshot/image
-                    page.evaluate(function () {
-                        return document.documentElement.innerHTML;
-                    }).then(function (doc) {
-                        contentFn(cheerio.load(doc));
+    phantom.create(['--ignore-ssl-errors=yes', '--load-images=no']).then(function (webagent) {
+        webagent.createPage().then(function (page) {
+            console.log("loading %s", url);
+            page.open(url).then(function (status) {
+                if (status !== 'success') {
+                    console.log("Failed to load url ==> (%s) @ %s", status, url);
+                    contentFn();
+                } else {
+                    page.property('content').then(function (content) {
+                        // find the snapshot/image
+                        page.evaluate(function () {
+                            return document.documentElement.innerHTML;
+                        }).then(function (doc) {
+                            contentFn(cheerio.load(doc));
+                        });
                     });
-                });
-            }
+                }
+            });
         });
     });
 }
@@ -164,15 +165,12 @@ function init() {
     stopCacheAndClear();
     
     console.log("initialising the phantom");
-    phantom.create(['--ignore-ssl-errors=yes', '--load-images=no']).then(function (instance) {
-        webagent = instance;
-        Object.keys(PAGES).forEach(function (alias) {
-            initAlias(alias, '', function () { updatePage(alias); });
-        });
+    Object.keys(PAGES).forEach(function (alias) {
+        initAlias(alias, '', function () { updatePage(alias); });
+    });
 
-        CAMS.forEach(function (alias) {
-            initAlias(alias, camPlayerRef(alias), function () { updateCam(alias); });
-        });
+    CAMS.forEach(function (alias) {
+        initAlias(alias, camPlayerRef(alias), function () { updateCam(alias); });
     });
 }
 
