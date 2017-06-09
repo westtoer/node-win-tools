@@ -1,15 +1,16 @@
 extends layout
 
 block content
-    .row
+    .row#top
         - var locations = [{ "alias": "depanne", "label": "De Panne"}, { "alias": "koksijdeoostduinkerke", "label": "Koksijde - Oostduinkerke"}, { "alias": "nieuwpoort" , "label": "Nieuwpoort"}, { "alias": "middelkerkewestende", "label": "Middelkerke - Westende"}, { "alias": "oostende", "label": "Oostende"}, { "alias": "bredene", "label": "Bredene"}, { "alias": "dehaanwenduine", "label": "De Haan - Wenduine"}, { "alias": "blankenberge", "label": "Blankenberge"}, { "alias": "zeebrugge", "label": "Zeebrugge"}, { "alias": "knokkeheist", "label": "Knokke - Heist"}, { "alias": "melle", "label": "Melle", "cls": "BL"}, { "alias": "ukkel", "label": "Ukkel", "cls": "BL"}]
         
         each loc, index in locations
             .col-xs-12.col-sm-6.col-md-4.col-lg-3.overlay-container
-                .row
+                .row.cam
                     .col-xs-12.overlay(class=loc.cls)
-                        h4= loc.label
-                    .col-xs-12.cam(data-alias=loc.alias, data-label=loc.label)
+                        span(role='label')= loc.label
+                        span(role='score').pull-right ?%
+                    .col-xs-12(role='cam',data-alias=loc.alias, data-label=loc.label)
                         br
                         br
                         | loading... 
@@ -18,9 +19,11 @@ block content
                         br
                         | ...
 
-    .fs
+    .row#bottom
         div#focus.overlay-container.embed-responsive.embed-responsive-16by9
-            .bar zeebrugge - test
+            .overlay 
+                span(role='label') zeebrugge - test
+                span(role='state').pull-right ?%
             iframe(class="embed-responsive-item", src="http://ipcamlive.com/player/player.php?alias=zeebrugge&autoplay=true")
 
 block scripts

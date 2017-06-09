@@ -59,9 +59,12 @@ tr.imgrow
 .overlay-container
     position: relative;
     
-.overlay, .bar
+.overlay
     position: absolute;
     color: #fff;
+    font-size: 1.5em;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
     background-color: rgba(85, 78, 0, 0.5);
     z-index: 1;
 
@@ -75,23 +78,11 @@ tr.imgrow
     background-repeat: no-repeat;
     background-position: 50% 50%;
 
-.fs
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
 
-    #focus
-        z-index: 2;
-        position: relative
-        background-color: rgba(255, 255, 255, 0.4);
-        margin-top: 2em;
-        margin-left: auto;
-        margin-right: auto;
-        width: 75%;
-        //display: none; // controlled by js
+#focus
+    position: relative
+    background-color: rgba(255, 255, 255, 0.4);
+    //display: none; // controlled by js
         
-        .bar
-            z-index: 3;
-            font-size: 3em;
+    .overlay
+        font-size: 3em;

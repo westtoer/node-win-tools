@@ -17,14 +17,20 @@
     }
     
     $(function () {
-        var $cams = $('.cam'),
+        var $camcontainers = $('.cam'),
+            $cams = $('[role="cam"]', $camcontainers),
             numcams = $cams.length,
-            $focus = $('#focus');
+            $focus = $('#focus'),
+            $top = $('#top'),
+            $bottom = $('#bottom');
         $focus.data('state', false);
         $focus.data('index', numcams - 1);
-        $focus.hide();
-        $cams.each(function () {
-            var $cam = $(this),
+        $bottom.hide();
+        $camcontainers.each(function () {
+            var $camcontainer = $(this),
+                $cam = $('[role="cam"]', $camcontainer),
+                $lbl = $('[role="label"]', $camcontainer),
+                $scr = $('[role="score"]', $camcontainer),
                 alias = $cam.data('alias'),
                 $img = $('<div class="row imgframe"></div>'),
                 $a = $('<a>'),
@@ -43,6 +49,7 @@
                                 $a.attr("href", data.player);
                                 $cam.data('player', data.player);
                                 $cam.data('score', data.score);
+                                $scr.html(data.score);
                             } catch (e) {
                                 console.error('error in execution of cam update (' + alias + ') ==> ' + e);
                             }
@@ -83,15 +90,16 @@
                     label = $cams.eq(index).data('label');
                     score = $cams.eq(index).data('score');
                     // TODO inject alias in fixed position banner... 
-                    $focus.html('<div class="bar col-xs-12">&nbsp;' + label + '&nbsp;'
+                    $focus.html('<div class="overlay col-xs-12">&nbsp;' + label + '&nbsp;'
                               + '<span class="pull-right">' + score + '</span></div>'
                               + '<iframe class="embed-responsive-item" src="' + player + '">');
-                    $focus.show();
-                    $('.overlay').hide(); // had to do this because z-index stuff kreeps above iframe?
+                    $top.slideUp();
+                    $bottom.slideDown();
                 } else {
-                    $focus.html(''); // empty that player code
-                    $focus.hide();
-                    $('.overlay').show(); // had to do this because z-index stuff kreeps above iframe?
+                    $top.slideDown();
+                    $bottom.slideUp(function () {
+                        $focus.html(''); // empty that player code
+                    });
                 }
 
                 $focus.data('state', newState);
