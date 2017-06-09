@@ -29,49 +29,9 @@
         $focus.data('state', false);
         $focus.data('index', numcams - 1);
         $bottom.hide();
-        $camcontainers.each(function () {
-            var $camcontainer = $(this),
-                $cam = $('[role="cam"]', $camcontainer),
-                $lbl = $('[role="label"]', $camcontainer),
-                $scr = $('[role="score"]', $camcontainer),
-                alias = $cam.data('alias'),
-                $img = $('<div class="row imgframe"></div>'),
-                $a = $('<a>'),
-                update = function () {
-                    $.ajax({
-                        dataType: 'json',
-                        url: '/cams/' + alias,
-                        success: function (data, status, xhr) {
-                            try {
-                                if (status !== 'success') {
-                                    console.log("bad response for alias '%s' ==> %s", alias, status);
-                                }
-                                var src = loadImageThen(data.image, function () {
-                                    $img.css("background-image", "url(" + src + ")");
-                                });
-                                $a.attr("href", data.player);
-                                $cam.data('player', data.player);
-                                $cam.data('score', data.score);
-                                $scr.html(data.score);
-                            } catch (e) {
-                                console.error('error in execution of cam update (' + alias + ') ==> ' + e);
-                            }
-                        },
-                        error: function (xhr, status, err) {
-                            console.error('error in ajax retrieval for cam update (' + alias + ') ==> ' + err);
-                            setTimeout(update, 10 * UPDATE_PERIOD); // wait longer for retry
-                        }
-                    });
-                };
-            
-            $cam.html('');
-            $cam.append($a.append($img));
-            update();
-            setInterval(update, UPDATE_PERIOD);
-        });
         
-        // do something to let each player in turn get focus
-        function toggleFocus() {
+         // do something to let each player in turn get focus
+        function toggleFocus(requestIndex) {
             var prevState, prevIndex, index, player =  '', label = '??', score = '*', newState;
             try {
                 prevIndex = $focus.data('index');
@@ -80,7 +40,9 @@
                 newState = !prevState;
 
                 if (newState) {
-                    index = prevIndex;
+                    index = requestIndex || prevIndex;
+                    player = $cams.eq(index).data('player');
+                    
                     // find next cam with available player
                     while (player.length === 0) {
                         index = (index + 1) % numcams;
@@ -93,12 +55,17 @@
                     label = $cams.eq(index).data('label');
                     score = $cams.eq(index).data('score');
                     // TODO inject alias in fixed position banner... 
-                    $focus.html('<div class="overlay col-xs-12">&nbsp;' + label + '&nbsp;'
-                              + '<span class="pull-right">' + score + '</span></div>'
-                              + '<iframe class="embed-responsive-item" src="' + player + '">');
+                    (function () {
+                        var $label = $('<div class="overlay col-xs-12">&nbsp;' + label + '&nbsp;</div>'),
+                            $score = $('<span class="pull-right">' + score + '</span>'),
+                            $iframe = $('<iframe class="embed-responsive-item" src="' + player + '">');
+                        $label.append($score).unbind().click(toggleFocus);
+                        $focus.html('').append($label).append($iframe);
+                    }());
                     $top.slideUp();
                     $bottom.slideDown();
                 } else {
+                    $focus.html('');
                     $top.slideDown();
                     $bottom.slideUp(function () {
                         $focus.html(''); // empty that player code
@@ -111,7 +78,54 @@
             } catch (e) {
                 console.error('error in execution of focus switch ==> ' + e);
             }
+            return false;
         }
+        
+        $camcontainers.each(function (ndx) {
+            var $camcontainer = $(this),
+                $cam = $('[role="cam"]', $camcontainer),
+                $lbl = $('[role="label"]', $camcontainer),
+                $scr = $('[role="score"]', $camcontainer),
+                alias = $cam.data('alias'),
+                $img = $('<div class="row imgframe"></div>'),
+                update = function () {
+                    $.ajax({
+                        dataType: 'json',
+                        url: '/cams/' + alias,
+                        success: function (data, status, xhr) {
+                            try {
+                                if (status !== 'success') {
+                                    console.log("bad response for alias '%s' ==> %s", alias, status);
+                                }
+                                var src = loadImageThen(data.image, function () {
+                                    $img.css("background-image", "url(" + src + ")");
+                                });
+                                $cam.data('player', data.player);
+                                $cam.data('score', data.score);
+                                if (data.player.length === 0) {
+                                    $camcontainer.addClass('noplayer');
+                                } else {
+                                    $camcontainer.removeClass('noplayer');
+                                }
+                                $scr.html(data.score);
+                            } catch (e) {
+                                console.error('error in execution of cam update (' + alias + ') ==> ' + e);
+                            }
+                        },
+                        error: function (xhr, status, err) {
+                            console.error('error in ajax retrieval for cam update (' + alias + ') ==> ' + err);
+                            setTimeout(update, 10 * UPDATE_PERIOD); // wait longer for retry
+                        }
+                    });
+                };
+            $cam.unbind().click(function () { return toggleFocus(ndx); });
+            
+            $cam.html('');
+            $cam.append($img);
+            update();
+            setInterval(update, UPDATE_PERIOD);
+        });
+
         
         setInterval(toggleFocus, FOCUS_PERIOD);
     });
