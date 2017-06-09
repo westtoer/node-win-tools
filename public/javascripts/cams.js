@@ -40,8 +40,11 @@
                 newState = !prevState;
 
                 if (newState) {
-                    index = requestIndex || prevIndex;
-                    player = $cams.eq(index).data('player');
+                    index = prevIndex;
+                    if (requestIndex !== undefined) {
+                        index = requestIndex;
+                        player = $cams.eq(index).data('player');
+                    }
                     
                     // find next cam with available player
                     while (player.length === 0) {
