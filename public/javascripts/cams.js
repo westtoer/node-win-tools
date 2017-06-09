@@ -11,9 +11,12 @@
         if (src === null || src === undefined || src.length === 0) {
             return;
         } //else
-        var ldr = new Image();
+        var ldr = new Image(),
+            sep = src.match('\\?') !== null ? '&' : '?';
+        src = src + sep + new Date().getTime();
         ldr.onload = cntFn;
         ldr.src = src;
+        return src;
     }
     
     $(function () {
@@ -43,8 +46,8 @@
                                 if (status !== 'success') {
                                     console.log("bad response for alias '%s' ==> %s", alias, status);
                                 }
-                                loadImageThen(data.image, function () {
-                                    $img.css("background-image", "url(" + data.image + ")");
+                                var src = loadImageThen(data.image, function () {
+                                    $img.css("background-image", "url(" + src + ")");
                                 });
                                 $a.attr("href", data.player);
                                 $cam.data('player', data.player);
