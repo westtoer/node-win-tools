@@ -20,6 +20,7 @@
     "node-sass-middleware": "0.8.0",
     "phantom": "^4.0.3",
     "serve-favicon": "~2.3.0",
+    "serve-index": "^1.9.1",
     "xmldom": "^0.1.22",
     "xpath": "0.0.22",
     "yargs": "^4.2.0"

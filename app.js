@@ -5,6 +5,7 @@
 var express = require('express'),
     path = require('path'),
     favicon = require('serve-favicon'),
+    serveIndex = require('serve-index'),
     logger = require('morgan'),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
@@ -46,13 +47,14 @@ app.use(require('node-sass-middleware')({
     indentedSyntax: true,
     sourceMap: true
 }));
-app.use(express['static'](path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/search', search);
 app.use('/analyse', analiz);
 app.use('/cams', webcams);
 
+app.use(express['static'](path.join(__dirname, 'public'), {maxAge: 1000*60*60})); // 1hours cache
+app.use(serveIndex(path.join(__dirname, 'public')));
 
 // this function is called when you want the server to die gracefully
 // i.e. wait for existing connections
